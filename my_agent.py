@@ -9,7 +9,7 @@ import math
 agentName = "<my_agent>"
 perceptFieldOfVision = 3   # Choose either 3,5,7 or 9
 perceptFrames = 1          # Choose either 1,2,3 or 4
-trainingSchedule = [("self", 500), ("random", 300)]
+trainingSchedule = [("self", 300), ("random", 200)]
 
 # git
 # This is the class for your snake/agent
@@ -25,15 +25,15 @@ class Snake:
         chromosome = [0] * 3
         for i in range(3):
             one_chromosome = []
-            for n in range(int(nPercepts/3)):
+            for n in range(int(nPercepts/perceptFieldOfVision)):
                 one_percept = []
-                for y in range(3):
+                for y in range(perceptFieldOfVision):
                     one_percept.append(rand.random())
                 one_chromosome.append(one_percept)
             chromosome[i] = one_chromosome
 
         self.chromosome = np.array(chromosome)
-        print("self.chromosome: " + str(self.chromosome))
+        # print("self.chromosome: " + str(self.chromosome))
 
     def AgentFunction(self, percepts):
         # print("Agent function")
@@ -147,6 +147,18 @@ def evalFitness(population):
     return fitness
 
 
+def aSnakeFitness(s):
+    maxSize = np.max(s.sizes)
+    turnsAlive = np.sum(s.sizes > 0)
+    maxTurns = len(s.sizes)
+
+    # This fitness functions considers snake size plus the fraction of turns the snake
+    # lasted for.  It should be a reasonable fitness function, though you're free
+    # to augment it with information from other stats as well
+    return maxSize + turnsAlive / maxTurns
+
+
+
 def newGeneration(old_population):
     print("new Generation")
 
@@ -160,6 +172,18 @@ def newGeneration(old_population):
     actions = old_population[0].actions
 
     fitness = evalFitness(old_population)
+
+    max1 = 0
+    index1 = 0
+    max2 = 0
+    index2 = 0
+    for n, x in enumerate(fitness):
+        if x > max1:
+            max1 = x
+            index1 = n
+        elif x > max2:
+            max2 = x
+            index2 = n
 
     print("fitness: " + str(fitness))
     #print("old_population: " + str(old_population[0].chromosome))
@@ -177,17 +201,24 @@ def newGeneration(old_population):
 
     # Create new population list...
     new_population = list()
-    for n in range(N):
+
+    new_population.append(old_population[index1])
+    new_population.append(old_population[index2])
+    # print("new population: " + str(fitness[index1]) + " 2: " + str(fitness[index2]))
+    print("New fitness: " + str(evalFitness(new_population)))
+    for n in range(N-2):
 
         # Create a new snake
         new_snake = Snake(nPercepts, actions)
 
-        parent1index = roulette_wheel_selection(old_population, fitness)
-        parent2index = roulette_wheel_selection(old_population, fitness)
-        parent1 = old_population[parent1index]
-        parent2 = old_population[parent2index]
+        parent1fitness = tournament(old_population)
+        parent2fitness = tournament(old_population)
+        print("fitnesses: " + str(fitness))
+        print("fitness1: " + str(aSnakeFitness(parent1fitness)) + " fitness2: " + str(aSnakeFitness(parent2fitness)))
+        # parent1 = old_population[0]
+        # parent2 = old_population[1]
 
-        new_snake.chromosome = newChromosome(parent1.chromosome, parent2.chromosome)
+        new_snake.chromosome = newChromosome(parent1fitness.chromosome, parent2fitness.chromosome)
 
         # Here you should modify the new snakes chromosome by selecting two parents (based on their
         # fitness) and crossing their chromosome to overwrite new_snake.chromosome
@@ -209,13 +240,11 @@ def newGeneration(old_population):
 
 
 def roulette_wheel_selection(population, fitness):
-    sortedFitness = np.sort(fitness)
-  #  print(" fitness: " + str(fitness))
 
     total_fit = fitness.sum()
-   # print("total_fit" + str(total_fit))
+    print("fitness" + str(fitness))
     prob_list = fitness / total_fit
-    # print("prob_list" + str(prob_list))
+    print("prob_list" + str(prob_list))
 
     # Notice there is the chance that a progenitor. mates with oneself
     progenitor_list_a = np.random.choice(list(range(len(population))), p=prob_list, replace=True)
@@ -230,17 +259,13 @@ def newChromosome(p1Chromo, p2Chromo):
   #  print("p1Chromo: " + str(p1Chromo))
   #  print("p2Chromo: " + str(p2Chromo))
     for n, x in enumerate(p1Chromo):
-        print("chromosome[n]: " + str(chromosome[n]))
-        print("x: " + str(x))
-        for y, w in enumerate(x):
-            print("w: " + str(w))
-            coinFlip = rand.randint(0, 1)
-            if coinFlip == 0:
-                chromosome[n][y] = w
-           # print("p1")
-        # else:
-        #     # print("p2")
-        #     chromosome[n] = p2Chromo[n]
+        # print("chromosome[n]: " + str(chromosome[n]))
+        # print("x: " + str(x))
+        # for y, w in enumerate(x):
+            # print("w: " + str(w))
+        coinFlip = rand.randint(0, 1)
+        if coinFlip == 0:
+            chromosome[n] = x
        # print("changed chromo: " + str(chromosome))
 
 
@@ -253,3 +278,11 @@ def newChromosome(p1Chromo, p2Chromo):
 
 def mutateChromosome(chromosome):
     return chromosome
+
+
+# Use many tournaments to get parents
+def tournament(population):
+    for i in range(len(population)):
+        population_sample = rand.sample(population, 3)
+        # print("candidates: " + str(candidates) + "num: " + str(len(population)))
+        return max(population_sample, key=lambda x: aSnakeFitness(x))
