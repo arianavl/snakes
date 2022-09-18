@@ -75,13 +75,13 @@ class Snake:
         weight_b = 0
         weight_c = 0
         for x in range(len(percepts)):
-            pre_index_a = self.chromosome[0] * percepts[x]
+            pre_index_a = self.chromosome[0] + percepts[x]
             # print("perceptsA: " + str(percepts[x]))
             # print("chromosomeA: " + str(self.chromosome[0]))
-            pre_index_b = self.chromosome[1] * percepts[x]
+            pre_index_b = self.chromosome[1] + percepts[x]
             # print("perceptsB: " + str(percepts[x]))
             # print("chromosomeB: " + str(self.chromosome[1]))
-            pre_index_c = self.chromosome[2] * percepts[x]
+            pre_index_c = self.chromosome[2] + percepts[x]
             # print("perceptsC: " + str(percepts[x]))
             # print("chromosomeC: " + str(self.chromosome[2]))
 
@@ -122,6 +122,10 @@ class Snake:
         weight_a = (np.sum(pre_index_a) + (rand.random()))
         weight_b = (np.sum(pre_index_b) + (rand.random()))
         weight_c = (np.sum(pre_index_c) + (rand.random()))
+
+        # weight_a = (np.sum(pre_index_a) + (rand.uniform(0, 0.5)))
+        # weight_b = (np.sum(pre_index_b) + (rand.uniform(0, 0.5)))
+        # weight_c = (np.sum(pre_index_c) + (rand.uniform(0, 0.5)))
 
         # weight_a = weight_a / perceptFieldOfVision
         # weight_a = weight_a / count
@@ -406,9 +410,11 @@ def newChromosome(p1Chromo, p2Chromo):
 
 
     # mutate??
-    # mutate = rand.randint(0, 50)
-    # if mutate == 1:
-    #     chromosome = mutateChromosome(chromosome)
+    mutate = rand.random()
+    # print("mutate: " + str(mutate))
+    if mutate < 0.005:
+        print("mutated")
+        chromosome = mutateChromosome(chromosome)
     # print("changed chromo: " + str(chromosome))
 
     return chromosome
@@ -418,11 +424,21 @@ def mutateChromosome(chromosome):
     index1 = rand.randint(0, 2)
     index2 = rand.randint(0, 2)
     mutation = []
-    for x in range(perceptFieldOfVision):
-        # mutation.append(rand.random())
-        mutation.append(rand.randint(1, 11))
+    # for x in range(3):
+    #     one_chromosome = []
+    #     for y in range(perceptFieldOfVision):
+    #         one_chromosome.append((rand.random()))
+    #     mutation.append(one_chromosome)
+
+    for y in range(perceptFieldOfVision):
+        mutation.append((rand.random()))
+        # mutation.append(rand.randint(1, 11))
     # chromosome[index1][index2] = [rand.random(), rand.random(), rand.random()]
-    chromosome[index1] = mutation
+    # print("mutation: " + str(mutation))
+    # print("chromosome: " + str(chromosome))
+    # chromosome[index1] = mutation
+    chromosome[index1][index2] = mutation
+    # print("mutated: " + str(chromosome))
     return chromosome
 
 
