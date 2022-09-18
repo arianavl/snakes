@@ -9,7 +9,7 @@ import math
 agentName = "<my_agent>"
 perceptFieldOfVision = 3   # Choose either 3,5,7 or 9
 perceptFrames = 1           # Choose either 1,2,3 or 4
-trainingSchedule = [("self", 200), ("random", 300)]
+trainingSchedule = [("self", 50), ("random", 100)]
 
 # git
 # This is the class for your snake/agent
@@ -35,7 +35,8 @@ class Snake:
                 one_chromosome.append(one_percept)
             chromosome[i] = one_chromosome
         self.chromosome = np.array(chromosome)
-        self.biases = [rand.uniform(0, 0.5), rand.uniform(0, 0.5), rand.uniform(0, 0.5)]
+        # self.biases = [rand.uniform(0, 0.5), rand.uniform(0, 0.5), rand.uniform(0, 0.5)]
+        self.biases = [rand.random(), rand.random(), rand.random()]
 
         # one_chromosome = []
         # for n in range(int(nPercepts / perceptFieldOfVision)):
@@ -75,13 +76,13 @@ class Snake:
         weight_b = 0
         weight_c = 0
         for x in range(len(percepts)):
-            pre_index_a = self.chromosome[0] + percepts[x]
+            pre_index_a = self.chromosome[0] * percepts[x]
             # print("perceptsA: " + str(percepts[x]))
             # print("chromosomeA: " + str(self.chromosome[0]))
-            pre_index_b = self.chromosome[1] + percepts[x]
+            pre_index_b = self.chromosome[1] * percepts[x]
             # print("perceptsB: " + str(percepts[x]))
             # print("chromosomeB: " + str(self.chromosome[1]))
-            pre_index_c = self.chromosome[2] + percepts[x]
+            pre_index_c = self.chromosome[2] * percepts[x]
             # print("perceptsC: " + str(percepts[x]))
             # print("chromosomeC: " + str(self.chromosome[2]))
 
@@ -292,6 +293,20 @@ def newGeneration(old_population):
     fitness = evalFitness(old_population)
 
     # elitism
+    # print("Fitness: " + str(fitness))
+    # elite = np.array([old_population[0], old_population[1], old_population[2]])
+    # elite_fitnesses = np.array([aSnakeFitness(old_population[0]), aSnakeFitness(old_population[1]), aSnakeFitness(old_population[2])])
+    # print("elite before: " + str(elite))
+    # print("elite_fitnesses before: " + str(elite_fitnesses))
+    # for n, x in enumerate(fitness):
+    #     if x > np.min(elite_fitnesses):
+    #         index = np.where(elite_fitnesses == np.min(elite_fitnesses))
+    #         elite_fitnesses[index] = x
+    #         elite[index] = old_population[n]
+    #         continue
+    #
+    # print("elite after: " + str(elite))
+    # print("elite_fitnesses after: " + str(elite_fitnesses))
     max1 = 0
     index1 = 0
     max2 = 0
@@ -300,7 +315,7 @@ def newGeneration(old_population):
         if x > max1:
             max1 = x
             index1 = n
-        elif x > max2:
+        elif x > max2 and n != index1:
             max2 = x
             index2 = n
 
@@ -412,7 +427,7 @@ def newChromosome(p1Chromo, p2Chromo):
     # mutate??
     mutate = rand.random()
     # print("mutate: " + str(mutate))
-    if mutate < 0.005:
+    if mutate < 0.010:
         print("mutated")
         chromosome = mutateChromosome(chromosome)
     # print("changed chromo: " + str(chromosome))
