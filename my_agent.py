@@ -35,7 +35,7 @@ class Snake:
                 one_chromosome.append(one_percept)
             chromosome[i] = one_chromosome
         self.chromosome = np.array(chromosome)
-        self.biases = [rand.random(), rand.random(), rand.random()]
+        self.biases = [rand.uniform(0, 0.5), rand.uniform(0, 0.5), rand.uniform(0, 0.5)]
 
         # one_chromosome = []
         # for n in range(int(nPercepts / perceptFieldOfVision)):
@@ -111,17 +111,17 @@ class Snake:
         # weight_b = (np.sum(pre_index_b)) + self.bias
         # weight_c = (np.sum(pre_index_c)) + self.bias
 
-        weight_a = (np.sum(pre_index_a)) + self.biases[0]
-        weight_b = (np.sum(pre_index_b)) + self.biases[1]
-        weight_c = (np.sum(pre_index_c)) + self.biases[2]
+        # weight_a = (np.sum(pre_index_a)) + self.biases[0]
+        # weight_b = (np.sum(pre_index_b)) + self.biases[1]
+        # weight_c = (np.sum(pre_index_c)) + self.biases[2]
 
         # weight_a = (np.sum(pre_index_a))
         # weight_b = (np.sum(pre_index_b))
         # weight_c = (np.sum(pre_index_c))
 
-        # weight_a = (np.sum(pre_index_a) + (rand.random()))
-        # weight_b = (np.sum(pre_index_b) + (rand.random()))
-        # weight_c = (np.sum(pre_index_c) + (rand.random()))
+        weight_a = (np.sum(pre_index_a) + (rand.random()))
+        weight_b = (np.sum(pre_index_b) + (rand.random()))
+        weight_c = (np.sum(pre_index_c) + (rand.random()))
 
         # weight_a = weight_a / perceptFieldOfVision
         # weight_a = weight_a / count
