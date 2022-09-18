@@ -20,7 +20,7 @@ game_settings = {
    "nSnakes": 10,
 
    # Number of turns per game
-   "nTurns": 100,
+   "nTurns": 200,
 
    # Speed of visualisation ('slow','normal','fast')
    "visSpeed": 'fast',
