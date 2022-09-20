@@ -6,10 +6,22 @@ import numpy as np
 import random as rand
 import math
 
+# if they are all zeros assign a bias to a random action to stop it from going in circles
+
+# np.dot(chromosome, percepts)
+
+# I think the problem is that its random but eventually the more
+# common outputs are reproduced cause slightly worse fitnesses
+# changing all ones to -1
+# changing fitness to not care about amount of turns as much
+
 agentName = "<my_agent>"
 perceptFieldOfVision = 3   # Choose either 3,5,7 or 9
 perceptFrames = 1           # Choose either 1,2,3 or 4
-trainingSchedule = [("self", 50), ("random", 100)]
+trainingSchedule = [("random", 300), ("self", 0), ("random", 0)]
+file = open("sample.txt", "w")
+# population_size = 10
+#trainingSchedule = None
 
 # git
 # This is the class for your snake/agent
@@ -22,21 +34,22 @@ class Snake:
         self.nPercepts = nPercepts
         # print("nPercepts: " + str(nPercepts))
         self.actions = actions
-        # self.habit_0 = 0
-        # self.habit_1 = 0
-        # self.habit_2 = 0
-        chromosome = [0] * 3
-        for i in range(3):
-            one_chromosome = []
-            for n in range(int(nPercepts/perceptFieldOfVision)):
-                one_percept = []
-                for y in range(perceptFieldOfVision):
-                    one_percept.append((rand.random()))
-                one_chromosome.append(one_percept)
-            chromosome[i] = one_chromosome
+        self.population_size = 3
+        self.lastPercepts = []
+        chromosome = \
+            [[[np.random.uniform(-1, 1) for i in range(perceptFieldOfVision)]
+              for i in range(perceptFieldOfVision)] for i in range(3)]
+        # for i in range(3):
+        #     one_chromosome = []
+        #     for n in range(int(nPercepts/perceptFieldOfVision)):
+        #         one_percept = []
+        #         for y in range(perceptFieldOfVision):
+        #             one_percept.append((np.random.uniform(-1, 1)))
+        #         one_chromosome.append(one_percept)
+        #     chromosome[i] = one_chromosome
         self.chromosome = np.array(chromosome)
-        # self.biases = [rand.uniform(0, 0.5), rand.uniform(0, 0.5), rand.uniform(0, 0.5)]
-        self.biases = [rand.random(), rand.random(), rand.random()]
+        # # self.biases = [rand.uniform(0, 0.5), rand.uniform(0, 0.5), rand.uniform(0, 0.5)]
+        # self.biases = [rand.random(), rand.random(), rand.random()]
 
         # one_chromosome = []
         # for n in range(int(nPercepts / perceptFieldOfVision)):
@@ -44,9 +57,9 @@ class Snake:
         #     for y in range(perceptFieldOfVision):
         #         one_percept.append(rand.random())
         #     one_chromosome.append(one_percept)
-
+        #
         # self.chromosome = np.array(one_chromosome)
-        # print("self.chromosome: " + str(self.chromosome))
+        # print("self.chromosome(original random chromosome): \n" + str(self.chromosome))
         # print("self.chromosome bais: " + str(self.chromosome[3]))
 
     def AgentFunction(self, percepts):
@@ -72,9 +85,16 @@ class Snake:
         # print("percepts: " + str(percepts))
         # print("percepts len: " + str(len(percepts)))
         # print("chromosome: " + str(np.array(self.chromosome)))
-        weight_a = 0
-        weight_b = 0
-        weight_c = 0
+        # bias = 0
+        # if self.lastPercepts != []:
+        #
+        #     comparison = self.lastPercepts == percepts
+        #     # print(comparison)
+        #     if comparison.all():
+        #         bias = np.random.uniform(-1.5, 1.5)
+        #         print("true")
+        # self.lastPercepts = percepts
+
         for x in range(len(percepts)):
             pre_index_a = self.chromosome[0] * percepts[x]
             # print("perceptsA: " + str(percepts[x]))
@@ -87,42 +107,70 @@ class Snake:
             # print("chromosomeC: " + str(self.chromosome[2]))
 
 
+        # pre_index_a = self.chromosome[0] * percepts
+        # # print("perceptsA: " + str(percepts))
+        # # print("chromosomeA: " + str(self.chromosome[0]))
+        # # print("pre_index_a: " + str(pre_index_a))
+        # pre_index_b = self.chromosome[1] * percepts
+        # # print("perceptsB: " + str(percepts[x]))
+        # # print("chromosomeB: " + str(self.chromosome[1]))
+        # # print("pre_index_b: " + str(pre_index_a))
+        # pre_index_c = self.chromosome[2] * percepts
 
-        count = 0
-        for n, x in enumerate(pre_index_a):
-            # print("x: " + str(x))
-            for y, i in enumerate(x):
-                # print("i " + str(i))
-                if i > 0:
-                    count += 1
+        # pre_index_a = pre_index_a * percepts
+        # pre_index_b = pre_index_b * percepts
+        # pre_index_c = pre_index_c * percepts
 
-        # weight_a += (rand.random() / count)
-        # weight_b += (rand.random() / count)
-        # weight_c += (rand.random() / count)
+        # print("perceptsC: " + str(percepts[x]))
+        # print("chromosomeC: " + str(self.chromosome[2]))
+        # print("pre_index_c: " + str(pre_index_a))
 
-        # weight_a = (np.sum(pre_index_a) + (rand.random()/rand.randint(1, 2)))
-        # weight_b = (np.sum(pre_index_b) + (rand.random()/rand.randint(1, 2)))
-        # weight_c = (np.sum(pre_index_c) + (rand.random()/rand.randint(1, 2)))
+        # print(sum(pre_index_c))
+        # print(percepts[0][1][1])
 
-        # weight_a = (np.sum(pre_index_a) + (rand.random()/rand.random()))
-        # weight_b = (np.sum(pre_index_b) + (rand.random()/rand.random()))
-        # weight_c = (np.sum(pre_index_c) + (rand.random()/rand.random()))
+        # print(percepts)
 
-        # weight_a = (np.sum(pre_index_a)) + self.bias
-        # weight_b = (np.sum(pre_index_b)) + self.bias
-        # weight_c = (np.sum(pre_index_c)) + self.bias
+        # count = 0
+        # for n, x in enumerate(pre_index_a):
+        #     # print("x: " + str(x))
+        #     for y, i in enumerate(x):
+        #         # print("i " + str(i))
+        #         if i > 0:
+        #             count += 1
+        ######################
+        # weight_a = (np.sum(pre_index_a) + (rand.random()))
+        # weight_b = (np.sum(pre_index_b) + (rand.random()))
+        # weight_c = (np.sum(pre_index_c) + (rand.random()))
 
-        # weight_a = (np.sum(pre_index_a)) + self.biases[0]
-        # weight_b = (np.sum(pre_index_b)) + self.biases[1]
-        # weight_c = (np.sum(pre_index_c)) + self.biases[2]
+        # weight_a = ((pre_index_a.sum()).sum() + (rand.random()))
+        # weight_b = ((pre_index_b.sum()).sum() + (rand.random()))
+        # weight_c = ((pre_index_c.sum()).sum() + (rand.random()))
 
-        # weight_a = (np.sum(pre_index_a))
-        # weight_b = (np.sum(pre_index_b))
-        # weight_c = (np.sum(pre_index_c))
+        # weight_a = (pre_index_a.sum()).sum() + np.random.uniform(-1, 1)
+        # weight_b = (pre_index_b.sum()).sum() + np.random.uniform(-1, 1)
+        # weight_c = (pre_index_c.sum()).sum() + np.random.uniform(-1, 1)
 
-        weight_a = (np.sum(pre_index_a) + (rand.random()))
-        weight_b = (np.sum(pre_index_b) + (rand.random()))
-        weight_c = (np.sum(pre_index_c) + (rand.random()))
+
+        ############################
+        weight_a = (pre_index_a.sum()).sum()
+        weight_b = (pre_index_b.sum()).sum()
+        weight_c = (pre_index_c.sum()).sum()
+
+        # weight_a = (pre_index_a.sum()).sum() + bias
+        # weight_b = (pre_index_b.sum()).sum() + bias
+        # weight_c = (pre_index_c.sum()).sum() + bias
+        # print(weight_a)
+        weightArray = np.array([weight_a, weight_b, weight_c])
+        # print("\nweightArray: " + str(weightArray))
+        maxWeight = np.argmax(weightArray)
+        # print("\nmaxWeight: " + str(maxWeight))
+        index = maxWeight
+        # print(index)
+        # print("index 2 (should be same): " + str(index))
+
+        # weight_a = (pre_index_a.sum() + (rand.uniform(0, 0.5)))
+        # weight_b = (pre_index_b.sum() + (rand.uniform(0, 0.5)))
+        # weight_c = (pre_index_c.sum() + (rand.uniform(0, 0.5)))
 
         # weight_a = (np.sum(pre_index_a) + (rand.uniform(0, 0.5)))
         # weight_b = (np.sum(pre_index_b) + (rand.uniform(0, 0.5)))
@@ -150,12 +198,12 @@ class Snake:
         # print("weight_a: " + str(weight_a))
         # print("weight_b: " + str(weight_b))
         #
-        if weight_c > weight_a and weight_c > weight_b:
-            index = 0
-        elif weight_b > weight_a and weight_b > weight_c:
-            index = 1
-        else:
-            index = 2
+        # if weight_c > weight_a and weight_c > weight_b:
+        #     index = 0
+        # elif weight_b > weight_a and weight_b > weight_c:
+        #     index = 1
+        # else:
+        #     index = 2
 
         # if index == 0 and self.habit_0 > self.habit_1/2 or self.habit_0 > self.habit_2/2:
         #     index = rand.randint(0, 2)
@@ -232,7 +280,18 @@ class Snake:
         # else:
         #     index = 2
         # print("index: " + str(index))
+
+        # Random attempt
+        # weights = np.array(self.chromosome * percepts)
+        # print(weights)
+        # weights = weights.sum()/rand.random()
+        # print(weights)
+
+
+
+
         # mindex = np.random.randint(low=0, high=len(self.actions))
+        # print("\nActions: " + str(self.actions))
         return self.actions[index]
 
 
@@ -263,6 +322,7 @@ def evalFitness(population):
         # lasted for.  It should be a reasonable fitness function, though you're free
         # to augment it with information from other stats as well
         fitness[n] = maxSize + turnsAlive / maxTurns
+        # fitness[n] = maxSize + maxTurns
 
     return fitness
 
@@ -289,8 +349,10 @@ def newGeneration(old_population):
 
     nPercepts = old_population[0].nPercepts
     actions = old_population[0].actions
-
+    # population_size = old_population[0].population_size
+    # population_size = population_size * 0.9
     fitness = evalFitness(old_population)
+
 
     # elitism
     # print("Fitness: " + str(fitness))
@@ -307,6 +369,9 @@ def newGeneration(old_population):
     #
     # print("elite after: " + str(elite))
     # print("elite_fitnesses after: " + str(elite_fitnesses))
+
+    # elitism
+    # eliteArray = np.argmax(weightArray)
     max1 = 0
     index1 = 0
     max2 = 0
@@ -315,7 +380,7 @@ def newGeneration(old_population):
         if x > max1:
             max1 = x
             index1 = n
-        elif x > max2 and n != index1:
+        elif x > max2:
             max2 = x
             index2 = n
 
@@ -335,18 +400,24 @@ def newGeneration(old_population):
 
     # Create new population list...
     new_population = list()
+    print("fitnesses: " + str(fitness))
+    print("population_size: " + str(old_population[0].population_size))
 
     new_population.append(old_population[index1])
     new_population.append(old_population[index2])
-    # print("new population: " + str(fitness[index1]) + " 2: " + str(fitness[index2]))
+    print("\nElitism new population: \n1: " + str(fitness[index1]) + "\n 2: " + str(fitness[index2]))
     # print("New fitness: " + str(evalFitness(new_population)))
     for n in range(N-2):
 
         # Create a new snake
         new_snake = Snake(nPercepts, actions)
+        if old_population[0].population_size <= 9:
+            new_snake.population_size = old_population[0].population_size + 0.02
+        else:
+            new_snake.population_size = 9
+        # print("population_size: " + str(new_snake.population_size))
 
-        parent1 = tournament(old_population)
-        parent2 = tournament(old_population)
+        parents = tournament(old_population)
 
         # snake1 = old_population.index(parent1fitness)
         # snake2 = old_population.index(parent2fitness)
@@ -355,17 +426,17 @@ def newGeneration(old_population):
         # print("fitnesess: " + str(fitness) + "snake1: " + str(fitness[snake1]) + " snake2: " + str(fitness[snake2]))
         # parent1fitness = roulette_wheel_selection(old_population, fitness)
         # parent2fitness = roulette_wheel_selection(old_population, fitness)
-        # # print("fitnesses: " + str(fitness))
-        # # print("fitness1: " + str(aSnakeFitness(parent1fitness)) + " fitness2: " + str(aSnakeFitness(parent2fitness)))
+        # print("fitnesses: " + str(fitness))
+        # # # print("fitness1: " + str(aSnakeFitness(parent1fitness)) + " fitness2: " + str(aSnakeFitness(parent2fitness)))
         # parent1 = old_population[parent1fitness]
         # parent2 = old_population[parent2fitness]
 
-        new_snake.chromosome = newChromosome(parent1.chromosome, parent2.chromosome)
-        coinFlip = rand.randint(0, 1)
-        if coinFlip == 0:
-            new_snake.biases = parent1.biases
-        else:
-            new_snake.biases = parent2.biases
+        new_snake.chromosome = newChromosome(parents[0], parents[1])
+        # coinFlip = rand.randint(0, 1)
+        # if coinFlip == 0:
+        #     new_snake.biases = parent1.biases
+        # else:
+        #     new_snake.biases = parent2.biases
         # new_snake.chromosome = newChromosome(parent1.chromosome, parent2.chromosome)
 
         # Here you should modify the new snakes chromosome by selecting two parents (based on their
@@ -384,6 +455,8 @@ def newGeneration(old_population):
     # At the end you need to compute the average fitness and return it along with your new population
     avg_fitness = np.mean(fitness)
 
+    file.write(str(avg_fitness) + "\n")
+
     return new_population, avg_fitness
 
 
@@ -394,6 +467,9 @@ def roulette_wheel_selection(population, fitness):
     prob_list = fitness / total_fit
     # print("prob_list" + str(prob_list))
 
+    p = fitness/np.sum(fitness)
+    # print("p" + str(p))
+
     # Notice there is the chance that a progenitor. mates with oneself
     progenitor_list_a = np.random.choice(list(range(len(population))), p=prob_list, replace=True)
 
@@ -403,34 +479,61 @@ def roulette_wheel_selection(population, fitness):
 
 
 def newChromosome(p1Chromo, p2Chromo):
-    chromosome = p2Chromo
+    chromosome = p2Chromo.chromosome
+    # arr = [oarent1, oarent2]
+
+    # arr = [p1Chromo, p1Chromo]
+    # p = np.random.choice(arr)
     # print("p1Chromo: " + str(p1Chromo))
     # print("p2Chromo: " + str(p2Chromo))
 
     # one
-    for n, x in enumerate(p1Chromo):
+    for n, x in enumerate(p1Chromo.chromosome):
         coinFlip = rand.randint(0, 1)
         if coinFlip == 0:
             chromosome[n] = x
 
     #two
-    # for n, x in enumerate(p1Chromo):
+    # for n, x in enumerate(p1Chromo.chromosome):
     #     # print("chromosome[n]: " + str(chromosome[n]))
     #     # print("x: " + str(x))
     #     for y, w in enumerate(x):
     #     # print("w: " + str(w))
     #         coinFlip = rand.randint(0, 1)
     #         if coinFlip == 0:
+    #             # print("p1Chromo.chromosome[n][y]: " + str(p1Chromo.chromosome[n][y]))
     #             chromosome[n][y] = w
+    #             # print("p1Chromo.chromosome[n][y] after chance of changing: " + str(p1Chromo.chromosome[n][y]))
 
+    #Three
+    # # print("\nchromosome before child creation: \n" + str(chromosome))
+    # # pop = pop + (pop * 0.3)
+    # for n, x in enumerate(p1Chromo.chromosome):
+    #     # print("\nchromosome[n] before child creation: " + str(chromosome[n]))
+    #     # print("x: " + str(x))
+    #     for y, w in enumerate(x):
+    #         for z, k in enumerate(w):
+    #     # print("w: " + str(w))
+    #             coinFlip = rand.randint(0, 1)
+    #             # print("p1Chromo.chromosome[n][y]: " + str(chromosome[n][y][z]))
+    #             if coinFlip == 0:
+    #                 # print("K: " + str(k))
+    #                 # print("Explicate K: " + str(p1Chromo.chromosome[n][y][z]))
+    #                 # print("Explicate K p2Chromo: " + str(p2Chromo.chromosome[n][y][z]))
+    #                 chromosome[n][y][z] = k
+    #                 # print("p1Chromo.chromosome[n][y] after chance of changing: " + str(chromosome[n][y][z]))
+    #
+    #     # print("chromosome[n] after: " + str(chromosome[n]))
+    #
+    # # print("\nchromosome after (child chromosome):\n " + str(chromosome))
 
     # mutate??
-    mutate = rand.random()
-    # print("mutate: " + str(mutate))
-    if mutate < 0.010:
-        print("mutated")
-        chromosome = mutateChromosome(chromosome)
-    # print("changed chromo: " + str(chromosome))
+    # mutate = rand.random()
+    # # print("mutate: " + str(mutate))
+    # if mutate < 0.001:
+    #     print("mutated")
+    #     chromosome = mutateChromosome(chromosome)
+    # #     print("\nchanged chromo (shoudl be same as after mutation chromosome):\n " + str(chromosome))
 
     return chromosome
 
@@ -438,28 +541,55 @@ def newChromosome(p1Chromo, p2Chromo):
 def mutateChromosome(chromosome):
     index1 = rand.randint(0, 2)
     index2 = rand.randint(0, 2)
+    index3 = rand.randint(0, 2)
+
     mutation = []
     # for x in range(3):
     #     one_chromosome = []
     #     for y in range(perceptFieldOfVision):
     #         one_chromosome.append((rand.random()))
     #     mutation.append(one_chromosome)
+    #
+    # for y in range(perceptFieldOfVision):
+    #     mutation.append((np.random.uniform(-1, 1)))
 
-    for y in range(perceptFieldOfVision):
-        mutation.append((rand.random()))
+    mutation = (np.random.uniform(-1, 1))
+
         # mutation.append(rand.randint(1, 11))
     # chromosome[index1][index2] = [rand.random(), rand.random(), rand.random()]
     # print("mutation: " + str(mutation))
-    # print("chromosome: " + str(chromosome))
+    # print("\nBefore mutation chromosome: \n" + str(chromosome))
     # chromosome[index1] = mutation
-    chromosome[index1][index2] = mutation
-    # print("mutated: " + str(chromosome))
+    # chromosome[index1][index2] = mutation
+    chromosome[index1][index2][index3] = mutation
+
+    # print("\n after mutated: \n" + str(chromosome))
     return chromosome
 
 
 # Use many tournaments to get parents
 def tournament(population):
-    for i in range(len(population)):
-        population_sample = rand.sample(population, 3)
-        # print("candidates: " + str(candidates) + "num: " + str(len(population)))
-        return max(population_sample, key=lambda x: aSnakeFitness(x))
+    # for i in range(len(population)):
+    # population_sample = rand.sample(population, math.floor(population[0].population_size))
+    population_sample = rand.sample(population, 3)
+    # print("population_size: " + str(population_size))
+    # print("0: " + str(population_sample[0].chromosome[0]) + " 1: " + str(population_sample[1].chromosome[0] ) + " 2: "+ str(population_sample[2].chromosome[0]))
+    # print("candidates: " + str(population_sample) + "num: " + str(len(population)))
+
+    # if aSnakeFitness(population_sample[0]) > aSnakeFitness(population_sample[1]) and aSnakeFitness(population_sample[0]) > aSnakeFitness(population_sample[2]):
+    #     return population_sample[0]
+    # elif aSnakeFitness(population_sample[1]) > aSnakeFitness(population_sample[0]) and aSnakeFitness(population_sample[1]) > aSnakeFitness(population_sample[2]):
+    #     return population_sample[1]
+    # else:
+    #     return population_sample[2]
+
+    # if aSnakeFitness(population_sample[0]) > aSnakeFitness(population_sample[1]):
+    #     return population_sample[0]
+    # else:
+    #     return population_sample[1]
+    parents = [max(population_sample, key=lambda x: aSnakeFitness(x))]
+    population_sample.remove(max(population_sample, key=lambda x: aSnakeFitness(x)))
+    parents.append(max(population_sample, key=lambda x: aSnakeFitness(x)))
+    print("Parent fitness: " + str(aSnakeFitness(parents[0])) + " Second parent: " + str(aSnakeFitness(parents[1])))
+    return parents
+
