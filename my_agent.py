@@ -2,6 +2,7 @@ __author__ = "<your name>"
 __organization__ = "COSC343/AIML402, University of Otago"
 __email__ = "<your e-mail>"
 
+import numpy
 import numpy as np
 import random as rand
 import math
@@ -95,27 +96,27 @@ class Snake:
         #         print("true")
         # self.lastPercepts = percepts
 
-        for x in range(len(percepts)):
-            pre_index_a = self.chromosome[0] * percepts[x]
-            # print("perceptsA: " + str(percepts[x]))
-            # print("chromosomeA: " + str(self.chromosome[0]))
-            pre_index_b = self.chromosome[1] * percepts[x]
-            # print("perceptsB: " + str(percepts[x]))
-            # print("chromosomeB: " + str(self.chromosome[1]))
-            pre_index_c = self.chromosome[2] * percepts[x]
-            # print("perceptsC: " + str(percepts[x]))
-            # print("chromosomeC: " + str(self.chromosome[2]))
+        # for x in range(len(percepts)):
+        #     pre_index_a = self.chromosome[0] * percepts[x]
+        #     # print("perceptsA: " + str(percepts[x]))
+        #     # print("chromosomeA: " + str(self.chromosome[0]))
+        #     pre_index_b = self.chromosome[1] * percepts[x]
+        #     # print("perceptsB: " + str(percepts[x]))
+        #     # print("chromosomeB: " + str(self.chromosome[1]))
+        #     pre_index_c = self.chromosome[2] * percepts[x]
+        #     # print("perceptsC: " + str(percepts[x]))
+        #     # print("chromosomeC: " + str(self.chromosome[2]))
 
 
-        # pre_index_a = self.chromosome[0] * percepts
-        # # print("perceptsA: " + str(percepts))
-        # # print("chromosomeA: " + str(self.chromosome[0]))
-        # # print("pre_index_a: " + str(pre_index_a))
-        # pre_index_b = self.chromosome[1] * percepts
-        # # print("perceptsB: " + str(percepts[x]))
-        # # print("chromosomeB: " + str(self.chromosome[1]))
-        # # print("pre_index_b: " + str(pre_index_a))
-        # pre_index_c = self.chromosome[2] * percepts
+        pre_index_a = self.chromosome[0] * percepts
+        # print("perceptsA: " + str(percepts))
+        # print("chromosomeA: " + str(self.chromosome[0]))
+        # print("pre_index_a: " + str(pre_index_a))
+        pre_index_b = self.chromosome[1] * percepts
+        # print("perceptsB: " + str(percepts[x]))
+        # print("chromosomeB: " + str(self.chromosome[1]))
+        # print("pre_index_b: " + str(pre_index_a))
+        pre_index_c = self.chromosome[2] * percepts
 
         # pre_index_a = pre_index_a * percepts
         # pre_index_b = pre_index_b * percepts
@@ -155,6 +156,10 @@ class Snake:
         weight_a = (pre_index_a.sum()).sum()
         weight_b = (pre_index_b.sum()).sum()
         weight_c = (pre_index_c.sum()).sum()
+
+        weight_a = (pre_index_a.sum()).sum() + (rand.uniform(-0.5, 0.5))
+        weight_b = (pre_index_b.sum()).sum() + (rand.uniform(-0.5, 0.5))
+        weight_c = (pre_index_c.sum()).sum() + (rand.uniform(-0.5, 0.5))
 
         # weight_a = (pre_index_a.sum()).sum() + bias
         # weight_b = (pre_index_b.sum()).sum() + bias
@@ -215,16 +220,6 @@ class Snake:
         #     index = rand.randint(0, 2)
         #     print(index)
 
-        # if index == 0:
-        #     self.habit_0 += 1
-        # elif index == 1:
-        #     self.habit_1 += 1
-        # else:
-        #     self.habit_2 += 1
-        # print("index: " + str(index))
-        # .
-        # .
-        # .
         # print(percepts) [[[0 0 0]
         #                   [0 1 0]
         #                   [1 1 0]]]
@@ -261,31 +256,7 @@ class Snake:
         # count = 0
         # for x in pre_index:
         #    count += x
-        # print("weight_c: " + str(weight_c))
-        # print("weight_a: " + str(weight_a))
-        # print("weight_b: " + str(weight_b))
-        # print("count: " + str(count))
-        # print("weigth_a: " + str(weight_a))
-        # if weight_a < 0.75:
-        #     index = 0
-        # elif weight_a < 1.25:
-        #     index = 1
-        # else:
-        #     index = 2
-        #
-        # if weight_a > 0.09:
-        #     index = 0
-        # elif weight_a > 0.07:
-        #     index = 0
-        # else:
-        #     index = 2
-        # print("index: " + str(index))
 
-        # Random attempt
-        # weights = np.array(self.chromosome * percepts)
-        # print(weights)
-        # weights = weights.sum()/rand.random()
-        # print(weights)
 
 
 
@@ -339,7 +310,6 @@ def aSnakeFitness(s):
 
 
 def newGeneration(old_population):
-    # print("new Generation")
 
     # This function should return a tuple consisting of:
     # - a list of the new_population of snakes that is of the same length as the old_population,
@@ -354,100 +324,40 @@ def newGeneration(old_population):
     fitness = evalFitness(old_population)
 
 
-    # elitism
-    # print("Fitness: " + str(fitness))
-    # elite = np.array([old_population[0], old_population[1], old_population[2]])
-    # elite_fitnesses = np.array([aSnakeFitness(old_population[0]), aSnakeFitness(old_population[1]), aSnakeFitness(old_population[2])])
-    # print("elite before: " + str(elite))
-    # print("elite_fitnesses before: " + str(elite_fitnesses))
-    # for n, x in enumerate(fitness):
-    #     if x > np.min(elite_fitnesses):
-    #         index = np.where(elite_fitnesses == np.min(elite_fitnesses))
-    #         elite_fitnesses[index] = x
-    #         elite[index] = old_population[n]
-    #         continue
-    #
-    # print("elite after: " + str(elite))
-    # print("elite_fitnesses after: " + str(elite_fitnesses))
-
-    # elitism
-    # eliteArray = np.argmax(weightArray)
-    max1 = 0
-    index1 = 0
-    max2 = 0
-    index2 = 0
-    for n, x in enumerate(fitness):
-        if x > max1:
-            max1 = x
-            index1 = n
-        elif x > max2:
-            max2 = x
-            index2 = n
-
-    # print("fitness: " + str(fitness))
-    #print("old_population: " + str(old_population[0].chromosome))
-
-    # Sort fitnesses, choose a fitness, find it in original unsorted fitness, then find in
-    # old_population
-
-
-    # At this point you should sort the old_population snakes according to fitness, setting it up for parent
-    # selection.
-    # .
-    # .
-    # .
-    # print("parent1: " + str(old_population[0].chromosome))
 
     # Create new population list...
     new_population = list()
+    print("fitness: " + str(fitness))
+
+    x = np.argsort(fitness)[::-1][:5]
+    for y in enumerate(x):
+        new_population.append(old_population[y[1]])
+        print(y[1])
+    print("Indices:", x)
     print("fitnesses: " + str(fitness))
     print("population_size: " + str(old_population[0].population_size))
 
-    new_population.append(old_population[index1])
-    new_population.append(old_population[index2])
-    print("\nElitism new population: \n1: " + str(fitness[index1]) + "\n 2: " + str(fitness[index2]))
-    # print("New fitness: " + str(evalFitness(new_population)))
-    for n in range(N-2):
+    # new_population.append(old_population[index1])
+    # new_population.append(old_population[index2])
+    # print("\nElitism new population: \n1: " + str(aSnakeFitness(new_population[0])) + "\n 2: " + str(aSnakeFitness(new_population[1])))
+    for n in range(N-5):
 
         # Create a new snake
         new_snake = Snake(nPercepts, actions)
-        if old_population[0].population_size <= 9:
-            new_snake.population_size = old_population[0].population_size + 0.02
-        else:
-            new_snake.population_size = 9
+        # if old_population[0].population_size <= 9:
+        #     new_snake.population_size = old_population[0].population_size + 0.02
+        # else:
+        #     new_snake.population_size = 9
         # print("population_size: " + str(new_snake.population_size))
 
         parents = tournament(old_population)
 
-        # snake1 = old_population.index(parent1fitness)
-        # snake2 = old_population.index(parent2fitness)
-        # print(snake1)
-        # print(snake2)
-        # print("fitnesess: " + str(fitness) + "snake1: " + str(fitness[snake1]) + " snake2: " + str(fitness[snake2]))
         # parent1fitness = roulette_wheel_selection(old_population, fitness)
         # parent2fitness = roulette_wheel_selection(old_population, fitness)
-        # print("fitnesses: " + str(fitness))
-        # # # print("fitness1: " + str(aSnakeFitness(parent1fitness)) + " fitness2: " + str(aSnakeFitness(parent2fitness)))
         # parent1 = old_population[parent1fitness]
         # parent2 = old_population[parent2fitness]
 
         new_snake.chromosome = newChromosome(parents[0], parents[1])
-        # coinFlip = rand.randint(0, 1)
-        # if coinFlip == 0:
-        #     new_snake.biases = parent1.biases
-        # else:
-        #     new_snake.biases = parent2.biases
-        # new_snake.chromosome = newChromosome(parent1.chromosome, parent2.chromosome)
-
-        # Here you should modify the new snakes chromosome by selecting two parents (based on their
-        # fitness) and crossing their chromosome to overwrite new_snake.chromosome
-
-        # Consider implementing elitism, mutation and various other
-        # strategies for producing a new creature.
-
-        # .
-        # .
-        # .
 
         # Add the new snake to the new population
         new_population.append(new_snake)
@@ -480,12 +390,6 @@ def roulette_wheel_selection(population, fitness):
 
 def newChromosome(p1Chromo, p2Chromo):
     chromosome = p2Chromo.chromosome
-    # arr = [oarent1, oarent2]
-
-    # arr = [p1Chromo, p1Chromo]
-    # p = np.random.choice(arr)
-    # print("p1Chromo: " + str(p1Chromo))
-    # print("p2Chromo: " + str(p2Chromo))
 
     # one
     for n, x in enumerate(p1Chromo.chromosome):
@@ -528,11 +432,11 @@ def newChromosome(p1Chromo, p2Chromo):
     # # print("\nchromosome after (child chromosome):\n " + str(chromosome))
 
     # mutate??
-    # mutate = rand.random()
-    # # print("mutate: " + str(mutate))
-    # if mutate < 0.001:
-    #     print("mutated")
-    #     chromosome = mutateChromosome(chromosome)
+    mutate = rand.random()
+    # print("mutate: " + str(mutate))
+    if mutate < 0.001:
+        print("mutated")
+        chromosome = mutateChromosome(chromosome)
     # #     print("\nchanged chromo (shoudl be same as after mutation chromosome):\n " + str(chromosome))
 
     return chromosome
@@ -569,26 +473,12 @@ def mutateChromosome(chromosome):
 
 # Use many tournaments to get parents
 def tournament(population):
-    # for i in range(len(population)):
-    # population_sample = rand.sample(population, math.floor(population[0].population_size))
+    # Choose random sample
     population_sample = rand.sample(population, 3)
-    # print("population_size: " + str(population_size))
-    # print("0: " + str(population_sample[0].chromosome[0]) + " 1: " + str(population_sample[1].chromosome[0] ) + " 2: "+ str(population_sample[2].chromosome[0]))
-    # print("candidates: " + str(population_sample) + "num: " + str(len(population)))
-
-    # if aSnakeFitness(population_sample[0]) > aSnakeFitness(population_sample[1]) and aSnakeFitness(population_sample[0]) > aSnakeFitness(population_sample[2]):
-    #     return population_sample[0]
-    # elif aSnakeFitness(population_sample[1]) > aSnakeFitness(population_sample[0]) and aSnakeFitness(population_sample[1]) > aSnakeFitness(population_sample[2]):
-    #     return population_sample[1]
-    # else:
-    #     return population_sample[2]
-
-    # if aSnakeFitness(population_sample[0]) > aSnakeFitness(population_sample[1]):
-    #     return population_sample[0]
-    # else:
-    #     return population_sample[1]
+    # Choose first parent
     parents = [max(population_sample, key=lambda x: aSnakeFitness(x))]
     population_sample.remove(max(population_sample, key=lambda x: aSnakeFitness(x)))
+    # choose second parent
     parents.append(max(population_sample, key=lambda x: aSnakeFitness(x)))
     print("Parent fitness: " + str(aSnakeFitness(parents[0])) + " Second parent: " + str(aSnakeFitness(parents[1])))
     return parents
