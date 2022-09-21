@@ -1,6 +1,6 @@
-__author__ = "<your name>"
+__author__ = "<Ariana van Lith>"
 __organization__ = "COSC343/AIML402, University of Otago"
-__email__ = "<your e-mail>"
+__email__ = "<vanar987@student.otago.ac.nz>"
 
 import numpy as np
 import random as rand
@@ -12,6 +12,7 @@ perceptFrames = 1  # Choose either 1,2,3 or 4
 trainingSchedule = [("random", 200), ("self", 100), ("random", 200)]
 file = open("sample.txt", "w")
 hiddenFunctionSizeWeights = 12
+lastAveFitness = 0
 low = -50
 high = 50
 tourSampleSize = 3
@@ -28,16 +29,19 @@ class Snake:
         self.nPercepts = nPercepts
         self.actions = actions
         self.population_size = 3
-        self.lastPercepts = []
+        self.lastActions = [0, 1, 2]
+        self.lastPercept = []
+        self.lastPercept1 = []
+        self.lastAveFitness = 0
         # ----- Multi -----
-        chromosome = \
-            [np.random.uniform(low, high) for i in
-             range((nPercepts * 3) + hiddenFunctionSizeWeights)]
+        # chromosome = \
+        #     [np.random.uniform(low, high) for i in
+        #      range((nPercepts * 3) + hiddenFunctionSizeWeights)]
 
         # ----- Single -----
-        # chromosome = \
-        #     [[[np.random.uniform(low, high) for i in range(perceptFieldOfVision)]
-        #       for i in range(perceptFieldOfVision)] for i in range(3)]
+        chromosome = \
+            [[[np.random.uniform(low, high) for i in range(perceptFieldOfVision)]
+              for i in range(perceptFieldOfVision)] for i in range(3)]
 
         self.chromosome = np.array(chromosome)
 
@@ -73,60 +77,89 @@ class Snake:
 
         # ----- Single Perceptron -------
 
-        # pre_index_a = self.chromosome[0].flatten() * flatPercepts
-        # pre_index_b = self.chromosome[1].flatten() * flatPercepts
-        # pre_index_c = self.chromosome[2].flatten() * flatPercepts
-        #
-        # weight_a = (pre_index_a.sum()).sum() + (rand.uniform(low, high))
-        # weight_b = (pre_index_b.sum()).sum() + (rand.uniform(low, high))
-        # weight_c = (pre_index_c.sum()).sum() + (rand.uniform(low, high))
-        #
-        # weightArray = np.array([weight_a, weight_b, weight_c])
+        pre_index_a = self.chromosome[0].flatten() * flatPercepts
+        pre_index_b = self.chromosome[1].flatten() * flatPercepts
+        pre_index_c = self.chromosome[2].flatten() * flatPercepts
+
+        f21 = (pre_index_a.sum()).sum() + (rand.uniform(low, high))
+        f22 = (pre_index_b.sum()).sum() + (rand.uniform(low, high))
+        f23 = (pre_index_c.sum()).sum() + (rand.uniform(low, high))
+
 
         # ----- Multilayer Perceptron -------
-        weightsCount = 0
+        # weightsCount = 0
+        #
+        # # First hidden layer
+        # f1 = 0
+        # for i in range(len(flatPercepts)):
+        #     f1 += flatPercepts[i] * self.chromosome[weightsCount]
+        #     weightsCount += 1
+        #
+        # f2 = 0
+        # for i in range(len(flatPercepts)):
+        #     f2 += flatPercepts[i] * self.chromosome[weightsCount]
+        #     weightsCount += 1
+        #
+        # f3 = 0
+        # for i in range(len(flatPercepts)):
+        #     f3 += flatPercepts[i] * self.chromosome[weightsCount]
+        #     weightsCount += 1
+        #
+        # # --- Second hidden layer ---
+        # f11 = (f1 * self.chromosome[weightsCount]) + (f2 * self.chromosome[weightsCount + 1]) + (
+        #             f3 * self.chromosome[weightsCount + 2])
+        # weightsCount += 3
+        # f12 = (f1 * self.chromosome[weightsCount]) + (f2 * self.chromosome[weightsCount + 1]) + (
+        #         f3 * self.chromosome[weightsCount + 2])
+        # weightsCount += 3
+        #
+        # # --- Third hidden layer ---
+        # f21 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1])
+        # weightsCount += 2
+        # f22 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1])
+        # weightsCount += 2
+        # f23 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1])
+        # weightsCount += 2
 
-        # First hidden layer
-        f1 = 0
-        for i in range(len(flatPercepts)):
-            f1 += flatPercepts[i] * self.chromosome[weightsCount]
-            weightsCount += 1
-        f1 += np.random.uniform(low, high)
+        if self.lastAveFitness < 4:
+            if np.all(self.lastPercept == percepts):
+                randChoice = rand.choice([1, 2, 3])
+                if randChoice == 1:
+                    # f21 += rand.choice([math.pow(high, high), math.pow(low, low)])
+                    f21 += math.pow(high, high)
+                elif randChoice == 2:
+                    # f22 += rand.choice([math.pow(high, high), math.pow(low, low)])
+                    f22 += math.pow(high, high)
+                else:
+                    # f23 += rand.choice([math.pow(high, high), math.pow(low, low)])
+                    f23 += math.pow(high, high)
 
-        f2 = 0
-        for i in range(len(flatPercepts)):
-            f2 += flatPercepts[i] * self.chromosome[weightsCount]
-            weightsCount += 1
-        f2 += np.random.uniform(low, high)
+            # To avoid having snakes going in circles
+            if len(set(self.lastActions)) == 1:
+                randChoice = rand.choice([1, 2, 3])
+                if randChoice == 1:
+                    # f21 += rand.choice([math.pow(high, high), math.pow(low, low)])
+                    f21 += math.pow(high, high)
+                elif randChoice == 2:
+                    # f22 += rand.choice([math.pow(high, high), math.pow(low, low)])
+                    f22 += math.pow(high, high)
+                else:
+                    # f23 += rand.choice([math.pow(high, high), math.pow(low, low)])
+                    f23 += math.pow(high, high)
 
-        f3 = 0
-        for i in range(len(flatPercepts)):
-            f3 += flatPercepts[i] * self.chromosome[weightsCount]
-            weightsCount += 1
-        f3 += np.random.uniform(low, high)
-
-        # --- Second hidden layer ---
-        f11 = (f1 * self.chromosome[weightsCount]) + (f2 * self.chromosome[weightsCount + 1]) + (
-                    f3 * self.chromosome[weightsCount + 2]) + np.random.uniform(low, high)
-        weightsCount += 3
-        f12 = (f1 * self.chromosome[weightsCount]) + (f2 * self.chromosome[weightsCount + 1]) + (
-                f3 * self.chromosome[weightsCount + 2]) + np.random.uniform(low, high)
-        weightsCount += 3
-
-        # --- Third hidden layer ---
-        f21 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1]) \
-              + np.random.uniform(low, high)
-        weightsCount += 2
-        f22 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1]) \
-              + np.random.uniform(low,high)
-        weightsCount += 2
-        f23 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1]) \
-              + np.random.uniform(low,high)
-        weightsCount += 2
         weightArray = np.array([f21, f22, f23])
 
         # Find max
         maxWeight = np.argmax(weightArray)
+        temp = self.lastActions[0]
+        temp2 = self.lastActions[1]
+        self.lastActions[0] = maxWeight
+        self.lastActions[1] = temp
+        self.lastActions[2] = temp2
+        temp = self.lastPercept
+        self.lastPercept = percepts
+        self.lastPercept1 = temp
+
         index = maxWeight
 
         return self.actions[index]
@@ -205,6 +238,7 @@ def newGeneration(old_population):
         # parent2 = old_population[parent2fitness]
 
         new_snake.chromosome = newChromosome(parents[0], parents[1])
+        new_snake.lastAveFitness = avg_fitness
 
         # Add the new snake to the new population
         new_population.append(new_snake)
@@ -233,22 +267,22 @@ def roulette_wheel_selection(population, fitness):
 def newChromosome(p1Chromo, p2Chromo):
 
     # # ---- Single -----
-    # # one
-    # chromosome = p2Chromo.chromosome
-    # for n, x in enumerate(p1Chromo.chromosome):
-    #     coinFlip = rand.randint(0, 1)
-    #     if coinFlip == 0:
-    #         chromosome[n] = x
+    # one
+    chromosome = p2Chromo.chromosome
+    for n, x in enumerate(p1Chromo.chromosome):
+        coinFlip = rand.randint(0, 1)
+        if coinFlip == 0:
+            chromosome[n] = x
 
     # ------ Multi -------
     # cross over
-    splitChromosome1 = np.array_split(p1Chromo.chromosome, p1Chromo.nPercepts)
-    splitChromosome2 = np.array_split(p2Chromo.chromosome, p1Chromo.nPercepts)
-    for i, n in enumerate(splitChromosome1):
-        coinFlip = rand.randint(0, 1)
-        if coinFlip == 0:
-            splitChromosome2[i] = n
-    chromosome = np.concatenate(splitChromosome2)
+    # splitChromosome1 = np.array_split(p1Chromo.chromosome, p1Chromo.nPercepts)
+    # splitChromosome2 = np.array_split(p2Chromo.chromosome, p1Chromo.nPercepts)
+    # for i, n in enumerate(splitChromosome1):
+    #     coinFlip = rand.randint(0, 1)
+    #     if coinFlip == 0:
+    #         splitChromosome2[i] = n
+    # chromosome = np.concatenate(splitChromosome2)
 
     # mutation
     mutate = rand.random()
