@@ -9,10 +9,9 @@ import math
 agentName = "<my_agent>"
 perceptFieldOfVision = 3  # Choose either 3,5,7 or 9
 perceptFrames = 1  # Choose either 1,2,3 or 4
-trainingSchedule = [("random", 200), ("self", 100), ("random", 200)]
+trainingSchedule = [("random", 500), ("self", 0), ("random", 0)]
 file = open("sample.txt", "w")
 hiddenFunctionSizeWeights = 12
-lastAveFitness = 0
 low = -50
 high = 50
 tourSampleSize = 3
@@ -213,15 +212,17 @@ def newGeneration(old_population):
     for n in range(N - amount):
         # Create a new snake
         new_snake = Snake(nPercepts, actions)
+
         # Get parents via tournament selection
         parents = tournament(old_population)
+        new_snake.chromosome = newChromosome(parents[0], parents[1])
 
         # parent1fitness = roulette_wheel_selection(old_population, fitness)
         # parent2fitness = roulette_wheel_selection(old_population, fitness)
         # parent1 = old_population[parent1fitness]
         # parent2 = old_population[parent2fitness]
+        # new_snake.chromosome = newChromosome(parent1, parent2)
 
-        new_snake.chromosome = newChromosome(parents[0], parents[1])
         new_snake.lastAveFitness = avg_fitness
 
         # Add the new snake to the new population
