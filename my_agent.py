@@ -22,7 +22,7 @@ perceptFrames = 1           # Choose either 1,2,3 or 4
 trainingSchedule = [("random", 300), ("self", 0), ("random", 0)]
 file = open("sample.txt", "w")
 # population_size = 10
-#trainingSchedule = None
+trainingSchedule = None
 
 # git
 # This is the class for your snake/agent
@@ -157,9 +157,9 @@ class Snake:
         weight_b = (pre_index_b.sum()).sum()
         weight_c = (pre_index_c.sum()).sum()
 
-        weight_a = (pre_index_a.sum()).sum() + (rand.uniform(-0.5, 0.5))
-        weight_b = (pre_index_b.sum()).sum() + (rand.uniform(-0.5, 0.5))
-        weight_c = (pre_index_c.sum()).sum() + (rand.uniform(-0.5, 0.5))
+        weight_a = (pre_index_a.sum()).sum() + (rand.uniform(-1, 1))
+        weight_b = (pre_index_b.sum()).sum() + (rand.uniform(-1, 1))
+        weight_c = (pre_index_c.sum()).sum() + (rand.uniform(-1, 1))
 
         # weight_a = (pre_index_a.sum()).sum() + bias
         # weight_b = (pre_index_b.sum()).sum() + bias
