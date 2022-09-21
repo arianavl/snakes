@@ -21,8 +21,11 @@ perceptFieldOfVision = 3   # Choose either 3,5,7 or 9
 perceptFrames = 1           # Choose either 1,2,3 or 4
 trainingSchedule = [("random", 300), ("self", 0), ("random", 0)]
 file = open("sample.txt", "w")
+hiddenFunctionSize = 8
+hiddenFunctionSizeWeights = 12
+
 # population_size = 10
-trainingSchedule = None
+# trainingSchedule = None
 
 # git
 # This is the class for your snake/agent
@@ -38,30 +41,12 @@ class Snake:
         self.population_size = 3
         self.lastPercepts = []
         chromosome = \
-            [[[np.random.uniform(-1, 1) for i in range(perceptFieldOfVision)]
-              for i in range(perceptFieldOfVision)] for i in range(3)]
-        # for i in range(3):
-        #     one_chromosome = []
-        #     for n in range(int(nPercepts/perceptFieldOfVision)):
-        #         one_percept = []
-        #         for y in range(perceptFieldOfVision):
-        #             one_percept.append((np.random.uniform(-1, 1)))
-        #         one_chromosome.append(one_percept)
-        #     chromosome[i] = one_chromosome
+            [np.random.uniform(-50, 50) for i in range(hiddenFunctionSizeWeights + (nPercepts*3) + hiddenFunctionSize)]
         self.chromosome = np.array(chromosome)
-        # # self.biases = [rand.uniform(0, 0.5), rand.uniform(0, 0.5), rand.uniform(0, 0.5)]
-        # self.biases = [rand.random(), rand.random(), rand.random()]
 
-        # one_chromosome = []
-        # for n in range(int(nPercepts / perceptFieldOfVision)):
-        #     one_percept = []
-        #     for y in range(perceptFieldOfVision):
-        #         one_percept.append(rand.random())
-        #     one_chromosome.append(one_percept)
         #
         # self.chromosome = np.array(one_chromosome)
         # print("self.chromosome(original random chromosome): \n" + str(self.chromosome))
-        # print("self.chromosome bais: " + str(self.chromosome[3]))
 
     def AgentFunction(self, percepts):
         # print("Agent function")
@@ -83,186 +68,80 @@ class Snake:
         #
         # Different 'self.chromosome' should lead to different 'actions'.  This way different
         # agents can exhibit different behaviour.
-        # print("percepts: " + str(percepts))
-        # print("percepts len: " + str(len(percepts)))
-        # print("chromosome: " + str(np.array(self.chromosome)))
-        # bias = 0
-        # if self.lastPercepts != []:
-        #
-        #     comparison = self.lastPercepts == percepts
-        #     # print(comparison)
-        #     if comparison.all():
-        #         bias = np.random.uniform(-1.5, 1.5)
-        #         print("true")
-        # self.lastPercepts = percepts
-
-        # for x in range(len(percepts)):
-        #     pre_index_a = self.chromosome[0] * percepts[x]
-        #     # print("perceptsA: " + str(percepts[x]))
-        #     # print("chromosomeA: " + str(self.chromosome[0]))
-        #     pre_index_b = self.chromosome[1] * percepts[x]
-        #     # print("perceptsB: " + str(percepts[x]))
-        #     # print("chromosomeB: " + str(self.chromosome[1]))
-        #     pre_index_c = self.chromosome[2] * percepts[x]
-        #     # print("perceptsC: " + str(percepts[x]))
-        #     # print("chromosomeC: " + str(self.chromosome[2]))
-
-
-        pre_index_a = self.chromosome[0] * percepts
-        # print("perceptsA: " + str(percepts))
-        # print("chromosomeA: " + str(self.chromosome[0]))
-        # print("pre_index_a: " + str(pre_index_a))
-        pre_index_b = self.chromosome[1] * percepts
-        # print("perceptsB: " + str(percepts[x]))
-        # print("chromosomeB: " + str(self.chromosome[1]))
-        # print("pre_index_b: " + str(pre_index_a))
-        pre_index_c = self.chromosome[2] * percepts
-
-        # pre_index_a = pre_index_a * percepts
-        # pre_index_b = pre_index_b * percepts
-        # pre_index_c = pre_index_c * percepts
-
-        # print("perceptsC: " + str(percepts[x]))
-        # print("chromosomeC: " + str(self.chromosome[2]))
-        # print("pre_index_c: " + str(pre_index_a))
-
-        # print(sum(pre_index_c))
-        # print(percepts[0][1][1])
 
         # print(percepts)
+        # print(percepts.flatten())
 
-        # count = 0
-        # for n, x in enumerate(pre_index_a):
-        #     # print("x: " + str(x))
-        #     for y, i in enumerate(x):
-        #         # print("i " + str(i))
-        #         if i > 0:
-        #             count += 1
-        ######################
-        # weight_a = (np.sum(pre_index_a) + (rand.random()))
-        # weight_b = (np.sum(pre_index_b) + (rand.random()))
-        # weight_c = (np.sum(pre_index_c) + (rand.random()))
+        flatPercepts = percepts.flatten()
+        for i, n in enumerate(flatPercepts):
+            if n == -1:
+                flatPercepts[i] = -10
+            elif n == 1:
+                flatPercepts[i] = -10
+            elif n == 2:
+                flatPercepts[i] = 10
+        # print(percepts)
+        # print(flatPercepts)
 
-        # weight_a = ((pre_index_a.sum()).sum() + (rand.random()))
-        # weight_b = ((pre_index_b.sum()).sum() + (rand.random()))
-        # weight_c = ((pre_index_c.sum()).sum() + (rand.random()))
+        weigthsCount = 0
 
-        # weight_a = (pre_index_a.sum()).sum() + np.random.uniform(-1, 1)
-        # weight_b = (pre_index_b.sum()).sum() + np.random.uniform(-1, 1)
-        # weight_c = (pre_index_c.sum()).sum() + np.random.uniform(-1, 1)
+        #### First hidden layer ####
+        f1 = 0
+        for i in range(len(flatPercepts)):
+            f1 += flatPercepts[i] * self.chromosome[weigthsCount]
+            weigthsCount += 1
+        ## Increase to pass bias value
+        # f1 += self.chromosome[weigthsCount]
+        f1 += np.random.uniform(-1, 1)
+        weigthsCount += 1
+        # print(f1)
+
+        f2 = 0
+        for i in range(len(flatPercepts)):
+            f2 += flatPercepts[i] * self.chromosome[i + self.nPercepts + 1]
+            weigthsCount += 1
+        ## Increase to pass bias value
+        # f2 += self.chromosome[weigthsCount]
+        f2 += np.random.uniform(-1, 1)
+        weigthsCount += 1
+
+        # print(f2)
+
+        f3 = 0
+        for i in range(len(flatPercepts)):
+            f3 += flatPercepts[i] * self.chromosome[i + self.nPercepts*2 + 2]
+            weigthsCount += 1
+        ## Increase to pass bias value
+        # f3 += self.chromosome[weigthsCount]
+        f3 += np.random.uniform(-1, 1)
+        weigthsCount += 1
+        # print(f3)
+        ###### evaluation function #####
+
+        #### Second hidden layer ####
+        f11 = (f1*self.chromosome[weigthsCount]) + (f2*self.chromosome[weigthsCount+1]) + (f3*self.chromosome[weigthsCount+2]) + np.random.uniform(-1, 1)
+        weigthsCount += 4
+        f12 = (f1 * self.chromosome[weigthsCount]) + (f2 * self.chromosome[weigthsCount + 1]) + (
+                    f3 * self.chromosome[weigthsCount + 2]) + np.random.uniform(-1, 1)
+        weigthsCount += 4
+
+        #### Third hidden layer ####
+        f21 = (f11 * self.chromosome[weigthsCount]) + (f12 * self.chromosome[weigthsCount+1]) + np.random.uniform(-1, 1)
+        weigthsCount += 3
+        f22 = (f11 * self.chromosome[weigthsCount]) + (f12 * self.chromosome[weigthsCount + 1]) + np.random.uniform(-1, 1)
+        weigthsCount += 3
+        f23 = (f11 * self.chromosome[weigthsCount]) + (f12 * self.chromosome[weigthsCount + 1]) + np.random.uniform(-1, 1)
+        weigthsCount += 3
 
 
-        ############################
-        weight_a = (pre_index_a.sum()).sum()
-        weight_b = (pre_index_b.sum()).sum()
-        weight_c = (pre_index_c.sum()).sum()
 
-        weight_a = (pre_index_a.sum()).sum() + (rand.uniform(-1, 1))
-        weight_b = (pre_index_b.sum()).sum() + (rand.uniform(-1, 1))
-        weight_c = (pre_index_c.sum()).sum() + (rand.uniform(-1, 1))
-
-        # weight_a = (pre_index_a.sum()).sum() + bias
-        # weight_b = (pre_index_b.sum()).sum() + bias
-        # weight_c = (pre_index_c.sum()).sum() + bias
-        # print(weight_a)
-        weightArray = np.array([weight_a, weight_b, weight_c])
+        weightArray = np.array([f21, f22, f23])
         # print("\nweightArray: " + str(weightArray))
         maxWeight = np.argmax(weightArray)
         # print("\nmaxWeight: " + str(maxWeight))
         index = maxWeight
         # print(index)
-        # print("index 2 (should be same): " + str(index))
 
-        # weight_a = (pre_index_a.sum() + (rand.uniform(0, 0.5)))
-        # weight_b = (pre_index_b.sum() + (rand.uniform(0, 0.5)))
-        # weight_c = (pre_index_c.sum() + (rand.uniform(0, 0.5)))
-
-        # weight_a = (np.sum(pre_index_a) + (rand.uniform(0, 0.5)))
-        # weight_b = (np.sum(pre_index_b) + (rand.uniform(0, 0.5)))
-        # weight_c = (np.sum(pre_index_c) + (rand.uniform(0, 0.5)))
-
-        # weight_a = weight_a / perceptFieldOfVision
-        # weight_a = weight_a / count
-        # weight_b = weight_b / perceptFieldOfVision
-        # weight_b = weight_b / count
-        # weight_c = weight_c / perceptFieldOfVision
-        # weight_c = weight_c / count
-            # weight_a += rand.randint(0, 2)
-            # weight_b += rand.randint(0, 2)
-            # weight_c += rand.randint(0, 2)
-
-
-
-
-        # # print(self.chromosome)
-        # print("preIndexA" + str(pre_index_a))
-        # count = 0
-        # # for x in pre_index:
-        # #    count += x
-        # print("weight_c: " + str(weight_c))
-        # print("weight_a: " + str(weight_a))
-        # print("weight_b: " + str(weight_b))
-        #
-        # if weight_c > weight_a and weight_c > weight_b:
-        #     index = 0
-        # elif weight_b > weight_a and weight_b > weight_c:
-        #     index = 1
-        # else:
-        #     index = 2
-
-        # if index == 0 and self.habit_0 > self.habit_1/2 or self.habit_0 > self.habit_2/2:
-        #     index = rand.randint(0, 2)
-        #     print(index)
-        # elif index == 1 and self.habit_1 > self.habit_0/2 or self.habit_1 > self.habit_2/2:
-        #     index = rand.randint(1, 2)
-        #     print(index)
-        # elif index == 2 and self.habit_2 > self.habit_1/2 or self.habit_2 > self.habit_0/2:
-        #     index = rand.randint(0, 2)
-        #     print(index)
-
-        # print(percepts) [[[0 0 0]
-        #                   [0 1 0]
-        #                   [1 1 0]]]
-
-        # if len(percepts) == 1:
-        #     pre_index_a = self.chromosome * percepts
-        # else:
-        # for x in range(len(percepts)):
-        #     pre_index_a = self.chromosome * percepts[x]
-        #     # pre_index_a = self.chromosome[x] * percepts[x]
-        #
-        # # print("perceptsA: " + str(percepts))
-        # # print("pre_index_a: " + str(pre_index_a))
-        # # print("chromosomeA: " + str(self.chromosome[0]))
-        #
-        # weight_a = np.sum(pre_index_a)
-
-        # count = 0
-        # for n, x in enumerate(pre_index_a):
-        #     # print("x: " + str(x))
-        #     for y, i in enumerate(x):
-        #         # print("i " + str(i))
-        #         if i > 0:
-        #             count += 1
-        # weight_a = weight_a/perceptFieldOfVision
-        # weight_a = weight_a/count
-
-            # weight_a += rand.rand(0, 0.5)
-
-            # weight_a += rand.random()
-
-        # print(self.chromosome)
-        # print("preIndexA" + str(pre_index_a))
-        # count = 0
-        # for x in pre_index:
-        #    count += x
-
-
-
-
-
-        # mindex = np.random.randint(low=0, high=len(self.actions))
-        # print("\nActions: " + str(self.actions))
         return self.actions[index]
 
 
@@ -329,6 +208,7 @@ def newGeneration(old_population):
     new_population = list()
     print("fitness: " + str(fitness))
 
+
     x = np.argsort(fitness)[::-1][:5]
     for y in enumerate(x):
         new_population.append(old_population[y[1]])
@@ -389,45 +269,35 @@ def roulette_wheel_selection(population, fitness):
 
 
 def newChromosome(p1Chromo, p2Chromo):
-    chromosome = p2Chromo.chromosome
 
-    # one
-    for n, x in enumerate(p1Chromo.chromosome):
+    splitChromosome1 = np.array_split(p1Chromo.chromosome, p1Chromo.nPercepts)
+    splitChromosome2 = np.array_split(p2Chromo.chromosome, p1Chromo.nPercepts)
+    for i, n in enumerate(splitChromosome1):
         coinFlip = rand.randint(0, 1)
         if coinFlip == 0:
-            chromosome[n] = x
+            splitChromosome2[i] = n
+    print(splitChromosome1)
+    print(splitChromosome2)
+    chromosome = np.concatenate(splitChromosome2)
+    print(chromosome)
 
-    #two
-    # for n, x in enumerate(p1Chromo.chromosome):
-    #     # print("chromosome[n]: " + str(chromosome[n]))
-    #     # print("x: " + str(x))
-    #     for y, w in enumerate(x):
-    #     # print("w: " + str(w))
-    #         coinFlip = rand.randint(0, 1)
-    #         if coinFlip == 0:
-    #             # print("p1Chromo.chromosome[n][y]: " + str(p1Chromo.chromosome[n][y]))
-    #             chromosome[n][y] = w
-    #             # print("p1Chromo.chromosome[n][y] after chance of changing: " + str(p1Chromo.chromosome[n][y]))
-
-    #Three
-    # # print("\nchromosome before child creation: \n" + str(chromosome))
-    # # pop = pop + (pop * 0.3)
-    # for n, x in enumerate(p1Chromo.chromosome):
-    #     # print("\nchromosome[n] before child creation: " + str(chromosome[n]))
-    #     # print("x: " + str(x))
-    #     for y, w in enumerate(x):
-    #         for z, k in enumerate(w):
-    #     # print("w: " + str(w))
-    #             coinFlip = rand.randint(0, 1)
-    #             # print("p1Chromo.chromosome[n][y]: " + str(chromosome[n][y][z]))
-    #             if coinFlip == 0:
-    #                 # print("K: " + str(k))
-    #                 # print("Explicate K: " + str(p1Chromo.chromosome[n][y][z]))
-    #                 # print("Explicate K p2Chromo: " + str(p2Chromo.chromosome[n][y][z]))
-    #                 chromosome[n][y][z] = k
-    #                 # print("p1Chromo.chromosome[n][y] after chance of changing: " + str(chromosome[n][y][z]))
+    # chromosome = []
+    # for x in range(p1Chromo.nPercepts + 1):
     #
-    #     # print("chromosome[n] after: " + str(chromosome[n]))
+    #
+    # while(x < len(chromosome)):
+    #     chromosome = np.concatenate([chromosome, p1Chromo.chromosome[x : x+])
+    # # one
+    # for n, x in enumerate(p1Chromo.chromosome):
+    #     coinFlip = rand.randint(0, 1)
+    #     if coinFlip == 0:
+    #         chromosome[n] = x
+
+    # x = 0
+    # y = 0
+    # while(x < len(chromosome)):
+    #     x += np.randint(1, perceptFieldOfVision*perceptFieldOfVision)
+
     #
     # # print("\nchromosome after (child chromosome):\n " + str(chromosome))
 
@@ -443,9 +313,7 @@ def newChromosome(p1Chromo, p2Chromo):
 
 
 def mutateChromosome(chromosome):
-    index1 = rand.randint(0, 2)
-    index2 = rand.randint(0, 2)
-    index3 = rand.randint(0, 2)
+    index1 = rand.randint(0, len(chromosome)-1)
 
     mutation = []
     # for x in range(3):
@@ -465,7 +333,7 @@ def mutateChromosome(chromosome):
     # print("\nBefore mutation chromosome: \n" + str(chromosome))
     # chromosome[index1] = mutation
     # chromosome[index1][index2] = mutation
-    chromosome[index1][index2][index3] = mutation
+    chromosome[index1] = mutation
 
     # print("\n after mutated: \n" + str(chromosome))
     return chromosome
