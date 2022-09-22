@@ -9,14 +9,15 @@ import math
 agentName = "<my_agent>"
 perceptFieldOfVision = 3  # Choose either 3,5,7 or 9
 perceptFrames = 1  # Choose either 1,2,3 or 4
-trainingSchedule = [("random", 500), ("self", 0), ("random", 0)]
+trainingSchedule = [("random", 500),  ("self", 0)]
 file = open("sample.txt", "w")
 hiddenFunctionSizeWeights = 12
+bias = 8
 low = -50
 high = 50
-tourSampleSize = 3
-
+tourSampleSize = 4
 # trainingSchedule = None
+
 
 # This is the class for your snake/agent
 class Snake:
@@ -30,12 +31,11 @@ class Snake:
         self.population_size = 3
         self.lastActions = [0, 1, 2]
         self.lastPercept = []
-        self.lastPercept1 = []
         self.lastAveFitness = 0
         # ----- Multi -----
         chromosome = \
             [np.random.uniform(low, high) for i in
-             range((nPercepts * 3) + hiddenFunctionSizeWeights)]
+             range((nPercepts * 3) + hiddenFunctionSizeWeights + bias)]
 
         self.chromosome = np.array(chromosome)
 
@@ -69,79 +69,82 @@ class Snake:
             elif n == 2:
                 flatPercepts[i] = 10
 
-        # ----- Multilayer Perceptron -------
+        # ------ Multilayer Perceptron -------
         weightsCount = 0
 
-        # ---- First hidden layer ----
+        # --- First hidden layer ---
         f1 = 0
         for i in range(len(flatPercepts)):
             f1 += flatPercepts[i] * self.chromosome[weightsCount]
             weightsCount += 1
+        f1 += self.chromosome[weightsCount]
+        weightsCount += 1
 
         f2 = 0
         for i in range(len(flatPercepts)):
             f2 += flatPercepts[i] * self.chromosome[weightsCount]
             weightsCount += 1
+        f2 += self.chromosome[weightsCount]
+        weightsCount += 1
 
         f3 = 0
         for i in range(len(flatPercepts)):
             f3 += flatPercepts[i] * self.chromosome[weightsCount]
             weightsCount += 1
+        f3 += self.chromosome[weightsCount]
+        weightsCount += 1
 
         # --- Second hidden layer ---
         f11 = (f1 * self.chromosome[weightsCount]) + (f2 * self.chromosome[weightsCount + 1]) + (
-                    f3 * self.chromosome[weightsCount + 2])
-        weightsCount += 3
+                    f3 * self.chromosome[weightsCount + 2]) + self.chromosome[weightsCount + 3]
+        weightsCount += 4
         f12 = (f1 * self.chromosome[weightsCount]) + (f2 * self.chromosome[weightsCount + 1]) + (
-                f3 * self.chromosome[weightsCount + 2])
-        weightsCount += 3
+                f3 * self.chromosome[weightsCount + 2]) + self.chromosome[weightsCount + 3]
+        weightsCount += 4
 
         # --- Third hidden layer ---
-        f21 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1])
-        weightsCount += 2
-        f22 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1])
-        weightsCount += 2
-        f23 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1])
-        weightsCount += 2
+        f21 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1]) \
+              + self.chromosome[weightsCount + 2]
+        weightsCount += 3
+        f22 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1])\
+              + self.chromosome[weightsCount + 2]
+        weightsCount += 3
+        f23 = (f11 * self.chromosome[weightsCount]) + (f12 * self.chromosome[weightsCount + 1])\
+              + self.chromosome[weightsCount + 2]
+        weightsCount += 3
 
-        # stop lower fitnesses from going round in circles
+        # stop lower fitness from going round in circles
         if self.lastAveFitness < 4:
             if np.all(self.lastPercept == percepts):
                 randChoice = rand.choice([1, 2, 3])
                 if randChoice == 1:
-                    # f21 += rand.choice([math.pow(high, high), math.pow(low, low)])
                     f21 += math.pow(high, high)
                 elif randChoice == 2:
-                    # f22 += rand.choice([math.pow(high, high), math.pow(low, low)])
                     f22 += math.pow(high, high)
                 else:
-                    # f23 += rand.choice([math.pow(high, high), math.pow(low, low)])
                     f23 += math.pow(high, high)
 
             if len(set(self.lastActions)) == 1:
                 randChoice = rand.choice([1, 2, 3])
                 if randChoice == 1:
-                    # f21 += rand.choice([math.pow(high, high), math.pow(low, low)])
                     f21 += math.pow(high, high)
                 elif randChoice == 2:
-                    # f22 += rand.choice([math.pow(high, high), math.pow(low, low)])
                     f22 += math.pow(high, high)
                 else:
-                    # f23 += rand.choice([math.pow(high, high), math.pow(low, low)])
                     f23 += math.pow(high, high)
 
         weightArray = np.array([f21, f22, f23])
 
         # Find max
         maxWeight = np.argmax(weightArray)
+
+        # set previous values
         temp = self.lastActions[0]
         temp2 = self.lastActions[1]
         self.lastActions[0] = maxWeight
         self.lastActions[1] = temp
         self.lastActions[2] = temp2
-        temp = self.lastPercept
         self.lastPercept = percepts
-        self.lastPercept1 = temp
 
         index = maxWeight
 
@@ -217,12 +220,6 @@ def newGeneration(old_population):
         parents = tournament(old_population)
         new_snake.chromosome = newChromosome(parents[0], parents[1])
 
-        # parent1fitness = roulette_wheel_selection(old_population, fitness)
-        # parent2fitness = roulette_wheel_selection(old_population, fitness)
-        # parent1 = old_population[parent1fitness]
-        # parent2 = old_population[parent2fitness]
-        # new_snake.chromosome = newChromosome(parent1, parent2)
-
         new_snake.lastAveFitness = avg_fitness
 
         # Add the new snake to the new population
@@ -234,19 +231,6 @@ def newGeneration(old_population):
     file.write(str(avg_fitness) + "\n")
 
     return new_population, avg_fitness
-
-
-def roulette_wheel_selection(population, fitness):
-    total_fit = fitness.sum()
-    # print("fitness" + str(fitness))
-    prob_list = fitness / total_fit
-    # print("prob_list" + str(prob_list))
-
-    # p = fitness / np.sum(fitness)
-
-    progenitor_list_a = np.random.choice(list(range(len(population))), p=prob_list, replace=True)
-
-    return progenitor_list_a
 
 
 def newChromosome(p1Chromo, p2Chromo):
